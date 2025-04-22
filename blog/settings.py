@@ -1,3 +1,5 @@
+ # group_level_permission/settings.py
+
 import os
 from pathlib import Path
 
@@ -32,10 +34,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'blog.middleware.RegistrationAccessMiddleware',
 ]
 
-ROOT_URLCONF = 'Group_Level_Permission.urls'
+ROOT_URLCONF = 'group_level_permission.urls'
 
 TEMPLATES = [
     {
@@ -53,7 +54,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'Group_Level_Permission.wsgi.application'
+WSGI_APPLICATION = 'group_level_permission.wsgi.application'
 
 DATABASES = {
     'default': {
@@ -87,21 +88,17 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Site URL for email verification
-SITE_URL = 'http://127.0.0.1:8000'
-
-# Email Configuration
+# Email settings for Mailtrap
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'sandbox.smtp.mailtrap.io'
 EMAIL_PORT = 2525
-EMAIL_HOST_USER = 'ef9bf88c314a87'
-EMAIL_HOST_PASSWORD = '47fc36be75b29b'
+EMAIL_HOST_USER = 'your-mailtrap-user'
+EMAIL_HOST_PASSWORD = 'your-mailtrap-password'
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
-DEFAULT_FROM_EMAIL = 'admin@example.com'
+DEFAULT_FROM_EMAIL = 'noreply@group-level-permission.com'
 
-# Custom user model
-AUTH_USER_MODEL = 'blog.User'
+AUTH_USER_MODEL = 'blog.CustomUser'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
-LOGOUT_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'dashboard'

@@ -1,0 +1,115 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1>Welcome, {{ user.get_full_name }}</h1>
+            <p class="text-muted">{{ user.get_role_display }}</p>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Quick Actions</h5>
+                    <div class="btn-group">
+                        {% if 'blog.add_post' in user.get_all_permissions %}
+                            <a href="{% url 'create_post' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Create Post
+                            </a>
+                        {% endif %}
+                        {% if user.permissions.can_publish %}
+                            <a href="#" class="btn btn-success">
+                                <i class="fas fa-check"></i> Publish Posts
+                            </a>
+                        {% endif %}
+                        {% if user.permissions.can_view_stats %}
+                            <a href="#" class="btn btn-info">
+                                <i class="fas fa-chart-bar"></i> View Statistics
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Posts List -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Posts</h5>
+                    {% if 'blog.add_post' in user.get_all_permissions %}
+                        <a href="{% url 'create_post' %}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus"></i> New Post
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for post in posts %}
+                                    <tr>
+                                        <td>{{ post.title }}</td>
+                                        <td>{{ post.author.get_full_name }}</td>
+                                        <td>
+                                            {% if post.published %}
+                                                <span class="badge bg-success">Published</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">Draft</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ post.created_at|date:"M d, Y" }}</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="{% url 'post_detail' post.id %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                {% if user.permissions.can_edit_all or post.author == user %}
+                                                    <a href="{% url 'edit_post' post.id %}" class="btn btn-sm btn-outline-secondary">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                {% endif %}
+                                                {% if user.permissions.can_publish and not post.published %}
+                                                    <a href="{% url 'edit_post' post.id %}?action=publish" class="btn btn-sm btn-outline-success">
+                                                        <i class="fas fa-check"></i>
+                                                    </a>
+                                                {% endif %}
+                                                {% if user.permissions.can_delete or post.author == user %}
+                                                    <a href="{% url 'delete_post' post.id %}" class="btn btn-sm btn-outline-danger">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">No posts found.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

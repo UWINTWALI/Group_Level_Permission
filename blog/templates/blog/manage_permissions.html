@@ -1,0 +1,126 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}Manage Permissions - {{ user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">Manage Permissions for {{ user.get_full_name }}</h2>
+            <div class="card">
+                <div class="card-body">
+                    <form method="post" id="permissionForm">
+                        {% csrf_token %}
+                        <div class="row">
+                            <!-- Available Permissions -->
+                            <div class="col-md-5">
+                                <h5 class="mb-3">Available Permissions</h5>
+                                <div class="list-group" id="available-permissions">
+                                    <select multiple class="form-select" size="10" id="available" name="available[]">
+                                        {% for permission in available_permissions %}
+                                            <option value="{{ permission.id }}">{{ permission.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-secondary btn-sm" id="add-all">
+                                        <i class="fas fa-angle-double-right"></i> Add all
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Arrows -->
+                            <div class="col-md-2 d-flex align-items-center justify-content-center">
+                                <div class="btn-group-vertical">
+                                    <button type="button" class="btn btn-primary mb-2" id="add-selected">
+                                        <i class="fas fa-angle-right"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-primary" id="remove-selected">
+                                        <i class="fas fa-angle-left"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Granted Permissions -->
+                            <div class="col-md-5">
+                                <h5 class="mb-3">Granted Permissions</h5>
+                                <div class="list-group" id="granted-permissions">
+                                    <select multiple class="form-select" size="10" id="granted" name="granted[]">
+                                        {% for permission in user_permissions %}
+                                            <option value="{{ permission.id }}">{{ permission.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-secondary btn-sm" id="remove-all">
+                                        <i class="fas fa-angle-double-left"></i> Remove all
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                                <a href="{% url 'manage_users' %}" class="btn btn-secondary">
+                                    <i class="fas fa-times"></i> Cancel
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const addSelected = document.getElementById('add-selected');
+    const removeSelected = document.getElementById('remove-selected');
+    const addAll = document.getElementById('add-all');
+    const removeAll = document.getElementById('remove-all');
+    const availableSelect = document.getElementById('available');
+    const grantedSelect = document.getElementById('granted');
+
+    // Move selected options from source to target
+    function moveOptions(source, target) {
+        Array.from(source.selectedOptions).forEach(option => {
+            target.appendChild(option);
+        });
+        sortOptions(target);
+    }
+
+    // Move all options from source to target
+    function moveAllOptions(source, target) {
+        Array.from(source.options).forEach(option => {
+            target.appendChild(option);
+        });
+        sortOptions(target);
+    }
+
+    // Sort options alphabetically
+    function sortOptions(select) {
+        const options = Array.from(select.options);
+        options.sort((a, b) => a.text.localeCompare(b.text));
+        options.forEach(option => select.appendChild(option));
+    }
+
+    // Add event listeners
+    addSelected.addEventListener('click', () => moveOptions(availableSelect, grantedSelect));
+    removeSelected.addEventListener('click', () => moveOptions(grantedSelect, availableSelect));
+    addAll.addEventListener('click', () => moveAllOptions(availableSelect, grantedSelect));
+    removeAll.addEventListener('click', () => moveAllOptions(grantedSelect, availableSelect));
+
+    // Form submission
+    document.getElementById('permissionForm').addEventListener('submit', function(e) {
+        // Select all options in granted select before submitting
+        Array.from(grantedSelect.options).forEach(option => option.selected = true);
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

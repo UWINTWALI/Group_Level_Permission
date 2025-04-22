@@ -1,0 +1,48 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}Author Dashboard{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mb-4">Author Dashboard</h1>
+            <p class="text-muted">Welcome, {{ user.get_full_name }}</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <a href="{% url 'create_post' %}" class="btn btn-primary">Create New Post</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-3">Your Posts</h2>
+            <div class="list-group">
+                {% for post in posts %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ post.title }}</h5>
+                            <small class="text-muted">
+                                {% if post.published %}
+                                    <span class="badge bg-success">Published</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Draft</span>
+                                {% endif %}
+                            </small>
+                        </div>
+                        <p class="mb-1">{{ post.content|truncatewords:20 }}</p>
+                        <div class="mt-2">
+                            <a href="{% url 'post_detail' post.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="list-group-item">
+                        <p class="mb-0">You haven't created any posts yet.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %} 

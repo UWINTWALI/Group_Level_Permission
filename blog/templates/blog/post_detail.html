@@ -1,0 +1,41 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mb-4">{{ post.title }}</h1>
+            <p class="text-muted">
+                By {{ post.author.get_full_name }} | 
+                {% if post.published %}
+                    <span class="badge bg-success">Published</span>
+                {% else %}
+                    <span class="badge bg-warning">Draft</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    {{ post.content|linebreaks }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+            {% if user.role == 'admin' or user.role == 'publisher' or user.role == 'editor' %}
+                <a href="{% url 'edit_post' post.id %}" class="btn btn-primary">Edit Post</a>
+            {% endif %}
+            {% if user.role == 'admin' or user.role == 'publisher' %}
+                <a href="{% url 'delete_post' post.id %}" class="btn btn-danger">Delete Post</a>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %} 

@@ -1,0 +1,53 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}Editor Dashboard{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+            <h1 class="mb-4">Editor Dashboard</h1>
+            <p class="text-muted">Welcome, {{ user.get_full_name }}</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <a href="{% url 'create_post' %}" class="btn btn-primary">Create New Post</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-3">Posts</h2>
+            <div class="list-group">
+                {% for post in posts %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ post.title }}</h5>
+                            <small class="text-muted">
+                                {% if post.published %}
+                                    <span class="badge bg-success">Published</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Draft</span>
+                                {% endif %}
+                            </small>
+                        </div>
+                        <p class="mb-1">{{ post.content|truncatewords:20 }}</p>
+                        <div class="mt-2">
+                            <a href="{% url 'post_detail' post.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                            <a href="{% url 'edit_post' post.id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                            {% if user.role == 'publisher' and not post.published %}
+                                <a href="{% url 'edit_post' post.id %}" class="btn btn-sm btn-outline-success">Publish</a>
+                            {% endif %}
+                            {% if user.role == 'publisher' %}
+                                <a href="{% url 'delete_post' post.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No posts available.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %} 

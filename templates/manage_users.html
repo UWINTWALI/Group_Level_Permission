@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Users - Group Level Permission{% endblock %}
+
+{% block header %}Manage Users{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">Users</h6>
+        <a href="{% url 'create_user' %}" class="btn btn-primary btn-sm">
+            <i class="fas fa-user-plus"></i> Add User
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>
+                            {% if user.profile_picture %}
+                            <img src="{{ user.profile_picture.url }}" class="profile-picture me-2" alt="Profile">
+                            {% else %}
+                            <i class="fas fa-user-circle me-2"></i>
+                            {% endif %}
+                            {{ user.get_full_name }}
+                        </td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            <span class="badge {% if user.role == 'admin' %}bg-danger{% elif user.role == 'publisher' %}bg-warning{% elif user.role == 'editor' %}bg-info{% elif user.role == 'author' %}bg-success{% else %}bg-secondary{% endif %}">
+                                {{ user.get_role_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if user.is_active %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{% url 'edit_user' user.id %}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#permissionsModal{{ user.id }}">
+                                    <i class="fas fa-key"></i>
+                                </button>
+                                {% if not user.is_superuser %}
+                                <a href="{% url 'toggle_user_status' user.id %}" class="btn btn-{% if user.is_active %}danger{% else %}success{% endif %} btn-sm">
+                                    <i class="fas fa-{% if user.is_active %}ban{% else %}check{% endif %}"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+
+                            <!-- Permissions Modal -->
+                            <div class="modal fade" id="permissionsModal{{ user.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">User Permissions</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <h6>Role Permissions:</h6>
+                                            <div class="mb-3">
+                                                {% for perm in user.get_role_permissions %}
+                                                <span class="badge bg-info me-1">{{ perm }}</span>
+                                                {% endfor %}
+                                            </div>
+                                            <h6>Custom Permissions:</h6>
+                                            <form method="post" action="{% url 'update_user_permissions' user.id %}">
+                                                {% csrf_token %}
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="can_publish" id="canPublish{{ user.id }}" {% if 'publish' in user.permissions %}checked{% endif %}>
+                                                    <label class="form-check-label" for="canPublish{{ user.id }}">
+                                                        Can Publish Posts
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="can_edit_all" id="canEditAll{{ user.id }}" {% if 'edit_all' in user.permissions %}checked{% endif %}>
+                                                    <label class="form-check-label" for="canEditAll{{ user.id }}">
+                                                        Can Edit All Posts
+                                                    </label>
+                                                </div>
+                                                <div class="mt-3">
+                                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No users found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 
