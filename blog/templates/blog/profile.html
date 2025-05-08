@@ -1,0 +1,158 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}{{ user.get_full_name }}'s Profile{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Profile Card -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" alt="Profile Picture" 
+                             class="rounded-circle img-fluid mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto mb-3"
+                             style="width: 150px; height: 150px;">
+                            <i class="fas fa-user fa-4x text-white"></i>
+                        </div>
+                    {% endif %}
+                    <h5 class="mb-1">{{ user.get_full_name }}</h5>
+                    <p class="text-muted mb-3">
+                        <span class="badge {% if user.role == 'admin' %}bg-danger{% elif user.role == 'publisher' %}bg-warning{% elif user.role == 'editor' %}bg-info{% elif user.role == 'author' %}bg-success{% else %}bg-secondary{% endif %}">
+                            {{ user.get_role_display }}
+                        </span>
+                    </p>
+                    <div class="d-flex justify-content-center mb-2">
+                        {% if user.role == 'admin' %}
+                            <a href="{% url 'manage_users' %}" class="btn btn-primary">Manage Users</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Card -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">Activity</h6>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="text-center mb-3">
+                                <h6 class="mb-1">Posts</h6>
+                                <span class="text-primary fw-bold">{{ user_posts_count }}</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center mb-3">
+                                <h6 class="mb-1">Joined</h6>
+                                <span class="text-muted">{{ user.date_joined|date:"M d, Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Card -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Full Name</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">{{ user.get_full_name }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Email</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">{{ user.email }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Role</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0">{{ user.get_role_display }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Status</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="mb-0">
+                                {% if user.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactive</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Permissions Card -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">Permissions</h6>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Permission</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for permission in user.get_role_permissions %}
+                                    <tr>
+                                        <td>Can {{ permission }} posts</td>
+                                        <td><i class="fas fa-check text-success"></i></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Posts Card -->
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">Recent Posts</h6>
+                    <div class="list-group list-group-flush">
+                        {% for post in posts|slice:":5" %}
+                            <div class="list-group-item px-0">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ post.title }}</h6>
+                                    <small class="text-muted">{{ post.created_at|date:"M d, Y" }}</small>
+                                </div>
+                                <p class="mb-1 text-muted small">{{ post.content|truncatewords:20 }}</p>
+                                <div class="mt-1">
+                                    <a href="{% url 'post_detail' post.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                    {% if user.role == 'admin' or user.role == 'publisher' or user.role == 'editor' %}
+                                        <a href="{% url 'edit_post' post.id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% empty %}
+                            <p class="text-muted mb-0">No posts yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

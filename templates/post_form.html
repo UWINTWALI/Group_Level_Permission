@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Group Level Permission{% endblock %}
+
+{% block header %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="id_title" class="form-label">Title</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.title.errors }}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="id_slug" class="form-label">Slug</label>
+                {{ form.slug }}
+                {% if form.slug.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.slug.errors }}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                <label for="id_content" class="form-label">Content</label>
+                {{ form.content }}
+                {% if form.content.errors %}
+                <div class="invalid-feedback d-block">
+                    {{ form.content.errors }}
+                </div>
+                {% endif %}
+            </div>
+
+            {% if user.role in 'admin,publisher'|split:',' %}
+            <div class="mb-3">
+                <div class="form-check">
+                    {{ form.published }}
+                    <label class="form-check-label" for="id_published">
+                        Publish this post
+                    </label>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-between">
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Auto-generate slug from title
+    document.getElementById('id_title').addEventListener('input', function() {
+        var title = this.value;
+        var slug = title.toLowerCase()
+            .replace(/[^\w\s-]/g, '') // Remove non-word characters
+            .replace(/\s+/g, '-')     // Replace spaces with hyphens
+            .replace(/-+/g, '-');     // Replace multiple hyphens with single hyphen
+        document.getElementById('id_slug').value = slug;
+    });
+</script>
+{% endblock %} 
